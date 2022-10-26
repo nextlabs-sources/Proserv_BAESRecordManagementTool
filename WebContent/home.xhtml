@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jstl/functions">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+	<ui:define name="header">
+	</ui:define>
+	<ui:define name="content">
+		<h:outputText styleClass="page-title" value="#{manageHomeBean.pageTitle}"></h:outputText>
+		<p:separator />
+
+		<h:panelGrid columns="2" width="100%" styleClass="home-grid">
+			<p:panel styleClass="home-panel" header="Manage Record Categories">
+				<h:outputText
+					value="Record Categories page provides authorized administrators means to :" />
+				<p:accordionPanel>
+					<p:tab title="View and Filter Categories">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('VIEW_CAT1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('VIEW_CAT2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Create Category">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_CAT1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_CAT2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Edit Category">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('EDIT_CAT1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('EDIT_CAT2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Delete Category">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_CAT1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_CAT2')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_CAT3')}" />
+						</h:panelGrid>
+					</p:tab>
+				</p:accordionPanel>
+			</p:panel>
+			<p:panel styleClass="home-panel" header="Manage Activities">
+				<h:outputText
+					value="Activities Page provides authorized administrators means to:" />
+				<p:accordionPanel>
+					<p:tab title="View and Filter Activities">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('VIEW_ACT1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('VIEW_ACT2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Create Activity">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_ACT1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_ACT2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Edit Activity">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('EDIT_ACT1')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Delete Activity">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_ACT1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_ACT2')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_ACT3')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_ACT4')}" />
+						</h:panelGrid>
+					</p:tab>
+				</p:accordionPanel>
+			</p:panel>
+			<p:panel styleClass="home-panel" header="Manage Activity Details">
+				<h:outputText
+					value="Activity Details page provides authorized administrators means to:" />
+				<p:accordionPanel>
+					<p:tab title="Edit Activity">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('EDIT_ACT_INFO1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('EDIT_ACT_INFO2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Create Activity Detail">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_ACT_DETAIL1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_ACT_DETAIL2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Edit Activity Detail">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('EDIT_ACT_DETAIL1')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Delete Activity Detail">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_ACT_DETAIL1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_ACT_DETAIL2')}" />
+						</h:panelGrid>
+					</p:tab>
+				</p:accordionPanel>
+			</p:panel>
+
+			<p:panel styleClass="home-panel"
+				header="Manage Departments Of Record">
+				<h:outputText
+					value="Departments Of Record page provides authorized administrators means to:" />
+				<p:accordionPanel>
+					<p:tab title="View and Filter Departments Of Record">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('VIEW_DEP1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('VIEW_DEP2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Create Department Of Record">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_DEP1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('CREATE_DEP2')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Edit Department Of Record">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('EDIT_DEP1')}" />
+						</h:panelGrid>
+					</p:tab>
+					<p:tab title="Delete Department Of Record">
+						<h:panelGrid columns="1">
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_DEP1')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_DEP2')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_DEP3')}" />
+							<h:outputText
+								value="#{userSessionBean.getContextHelper('DELETE_DEP4')}" />
+						</h:panelGrid>
+					</p:tab>
+				</p:accordionPanel>
+			</p:panel>
+		</h:panelGrid>
+		<p:growl id="database" showDetail="true" autoUpdate="false"
+			sticky="false" severity="info, error" redisplay="false" />
+	</ui:define>
+	<ui:define name="footer">
+	</ui:define>
+</ui:composition>
+</html>

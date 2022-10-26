@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+	<ui:define name="header">
+	</ui:define>
+	<ui:define name="content">
+		<h:outputText value="Manage Activity Details" styleClass="page-title"></h:outputText>
+		<p:separator id="separator1" />
+		<h:form id="activity-form">
+			<!-- <p:messages id="messages" showDetail="true" autoUpdate="true"
+				closable="true" /> -->
+
+			<h:panelGrid columns="2" cellspacing="7" style="width:100%"
+				id="activity-grid"
+				columnClasses="detail-grid-column1, detail-grid-column2">
+				<h:outputText value="Activity Name" styleClass="bold-label"></h:outputText>
+				<h:outputText value="#{manageActivityDetailsBean.activity.name}">
+				</h:outputText>
+
+				<h:outputText value="Active"></h:outputText>
+				<h:outputText value="Yes"
+					rendered="#{manageActivityDetailsBean.activityActive}"></h:outputText>
+				<h:outputText value="No"
+					rendered="#{!manageActivityDetailsBean.activityActive}"></h:outputText>
+
+				<h:outputText value="Applicable Record Categories"
+					styleClass="bold-label"></h:outputText>
+				<h:outputText
+					value="#{manageActivityDetailsBean.recordCategoryString}"></h:outputText>
+
+				<h:outputText value="Record Officers Guidance"
+					styleClass="bold-label" />
+				<h:outputText
+					value="#{manageActivityDetailsBean.activity.recordOfficersGuidance}"
+					escape="false"
+					rendered="#{!manageActivityDetailsBean.checkRichTextEmpty(manageActivityDetailsBean.activity.recordOfficersGuidance)}" />
+
+				<h:outputText value="Empty" escape="false"
+					rendered="#{manageActivityDetailsBean.checkRichTextEmpty(manageActivityDetailsBean.activity.recordOfficersGuidance)}" />
+			</h:panelGrid>
+
+			<p:commandButton type="button" value="Edit" icon="ui-icon-pencil"
+				styleClass="button-with-border"
+				disabled="#{!userSessionBean.isAdmin}"
+				onclick="PF('edit-activity-dialog').show();"
+				update=":edit-activity-form:edit-activity-dialog :activity-form" />
+		</h:form>
+
+		<h:form id="edit-activity-form">
+			<p:dialog header="Update Activity" widgetVar="edit-activity-dialog"
+				modal="true" closeOnEscape="true" width="auto"
+				id="edit-activity-dialog" resizable="false">
+				<h:panelGrid columns="4" cellspacing="7" styleClass="dialog-grid"
+					id="edit-activity-dialog-grid">
+					<p:outputLabel for="activity-edit-value" value="Name" />
+					<p:inputText value="#{manageActivityDetailsBean.activity.name}"
+						required="true" id="activity-edit-value" maxlength="100"></p:inputText>
+					<p:message for="activity-edit-value" display="tooltip" />
+					<p:watermark value="Max 100 characters" for="activity-edit-value"></p:watermark>
+
+
+
+					<p:outputLabel for="activity-edit-active" value="Active"></p:outputLabel>
+					<p:selectBooleanCheckbox
+						value="#{manageActivityDetailsBean.activityActive}"
+						id="activity-edit-active"></p:selectBooleanCheckbox>
+					<p:message for="activity-edit-active" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="activity-edit-specialinstruction"
+						value="Record Officers Guidance" />
+					<p:editor width="500" maxlength="1500"
+						value="#{manageActivityDetailsBean.activity.recordOfficersGuidance}"
+						required="false" id="activity-edit-specialinstruction"></p:editor>
+					<p:message for="activity-edit-specialinstruction" display="tooltip" />
+
+				</h:panelGrid>
+				<p:commandButton value="Update"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageActivityDetailsBean.updateActivity}"
+					id="activity-new-button" onclick="loading();"
+					oncomplete="doneLoading();"
+					update=":activity-form :edit-activity-form:edit-activity-dialog-grid"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					severity="error" for="create-new-form" id="create-new-msg" />
+			</p:dialog>
+		</h:form>
+
+		<p:separator id="separator3" />
+		<h:form id="activity-detail-form">
+			<p:toolbar styleClass="data-toolbar" id="activity-detail-toolbar">
+				<f:facet name="left">
+					<p:commandButton type="button" value="New" icon="ui-icon-document"
+						styleClass="button-with-border-top-left"
+						onclick="PF('create-new-dialog').show();"
+						update=":create-new-form:create-new-dialog" />
+				</f:facet>
+			</p:toolbar>
+			<p:dataTable paginatorAlwaysVisible="false" var="ra" lazy="true"
+				value="#{manageActivityDetailsBean.activityDetailList}"
+				id="activity-detail-list" style="margin-top:0px !important"
+				sortBy="#{ra.titleValue}" rows="30">
+
+				<p:column width="30%" headerText="Title">
+					<h:outputText value="#{ra.titleValue}" />
+				</p:column>
+
+				<p:column width="30%" headerText="Reference">
+					<h:outputText value="#{ra.referenceValue}" />
+				</p:column>
+
+				<p:column width="30%" headerText="Date">
+					<h:outputText value="#{ra.dateValue}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column width="50" style="text-align:center !important"
+					headerText="Edit">
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{manageActivityDetailsBean.getSelectedActivityDetail(ra.id)}"
+						styleClass="button-with-border button-in-grid" update=":edit-form :activity-detail-form:activity-detail-list">
+					</p:commandButton>
+				</p:column>
+
+				<p:column width="50" style="text-align:center !important"
+					headerText="Delete">
+					<p:commandButton icon="ui-icon-trash"
+						actionListener="#{manageActivityDetailsBean.getSelectedActivityDetailForDelete(ra.id)}" 
+						update=":activity-detail-form:activity-detail-list"
+						styleClass="button-with-border button-in-grid">
+					</p:commandButton>
+				</p:column>
+
+			</p:dataTable>
+		</h:form>
+
+		<h:form id="create-new-form">
+			<p:dialog header="New Activity Detail" widgetVar="create-new-dialog"
+				modal="true" closeOnEscape="true" width="auto"
+				id="create-new-dialog" resizable="false">
+				<h:panelGrid columns="4" cellspacing="7" styleClass="dialog-grid"
+					id="create-new-dialog-grid">
+					<p:outputLabel for="activity-new-title" value="Title" />
+					<p:inputText
+						value="#{manageActivityDetailsBean.newActivityDetail.titleValue}"
+						required="true" id="activity-new-title" maxlength="35"></p:inputText>
+					<p:watermark value="Max 35 characters" for="activity-new-title"></p:watermark>
+					<p:message for="activity-new-title" display="tooltip" />
+
+					<p:outputLabel for="activity-new-reference" value="Reference" />
+					<p:inputText
+						validatorMessage="Reference: No special characters are allowed"
+						value="#{manageActivityDetailsBean.newActivityDetail.referenceValue}"
+						required="true" id="activity-new-reference" maxlength="15">
+						<f:validateRegex pattern="^[a-zA-Z0-9]+$" />
+					</p:inputText>
+					<p:watermark value="Max 15 characters" for="activity-new-reference"></p:watermark>
+					<p:message for="activity-new-reference" display="tooltip" />
+
+					<p:outputLabel for="activity-new-date" value="Date" />
+					<p:calendar value="#{manageActivityDetailsBean.newDate}"
+						pattern="dd/MM/yyyy" required="true" id="activity-new-date"
+						navigator="true"></p:calendar>
+					<p:message for="activity-new-date" display="tooltip" />
+
+
+				</h:panelGrid>
+				<p:commandButton value="Create"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageActivityDetailsBean.createNewActivityDetail}"
+					id="activity-new-button"
+					update=":activity-detail-form:activity-detail-list create-new-dialog-grid create-new-msg"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					severity="error" for="create-new-form" id="create-new-msg" />
+			</p:dialog>
+		</h:form>
+
+		<h:form id="edit-form">
+			<p:dialog header="Update Activity Detail" widgetVar="edit-dialog"
+				modal="true" closeOnEscape="true" width="auto" id="edit-dialog"
+				resizable="false">
+				<h:panelGrid columns="4" cellspacing="7" styleClass="dialog-grid"
+					id="edit-dialog-grid">
+					<p:outputLabel for="activity-edit-title" value="Title" />
+					<p:inputText
+						value="#{manageActivityDetailsBean.selectedActivityDetail.titleValue}"
+						required="true" id="activity-edit-title" maxlength="35"></p:inputText>
+					<p:message for="activity-edit-title" display="tooltip" />
+					<p:watermark value="Max 35 characters" for="activity-edit-title"></p:watermark>
+					<p:outputLabel for="activity-edit-reference" value="Reference" />
+					<p:inputText
+						validatorMessage="Reference: No special characters are allowed"
+						value="#{manageActivityDetailsBean.selectedActivityDetail.referenceValue}"
+						required="true" id="activity-edit-reference" maxlength="15">
+						<f:validateRegex pattern="^[a-zA-Z0-9]+$" />
+					</p:inputText>
+					<p:message for="activity-edit-reference" display="tooltip" />
+					<p:watermark value="Max 15 characters"
+						for="activity-edit-reference"></p:watermark>
+
+					<p:outputLabel for="activity-edit-date" value="Date" />
+					<p:calendar value="#{manageActivityDetailsBean.editDate}"
+						pattern="dd/MM/yyyy" required="true" id="activity-edit-date"
+						navigator="true"></p:calendar>
+					<p:message for="activity-edit-date" display="tooltip" />
+
+
+				</h:panelGrid>
+				<p:commandButton value="Update"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageActivityDetailsBean.updateActivityDetail}"
+					id="record-update-button"
+					update=":activity-detail-form:activity-detail-list :edit-form:edit-dialog-grid"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					for="edit-form" severity="error" id ="edit-activity-detail-msg"/>
+			</p:dialog>
+		</h:form>
+
+		<h:form id="delete-activity-detail-form">
+			<p:dialog header="Delete Activity Detail" widgetVar="delete-dialog"
+				modal="true" closeOnEscape="true" width="auto" id="delete-dialog"
+				resizable="false">
+				<h:outputText
+					value="This will permanently delete this activity detail. Are you sure?" />
+				<h:panelGrid columns="2" width="100%" style="margin-top:30px">
+					<p:commandButton value="Delete"
+						styleClass="dialog-button-multiple button-with-border"
+						action="#{manageActivityDetailsBean.deleteActivityDetail}"
+						id="activity-delete-button"
+						update=":activity-detail-form:activity-detail-list"></p:commandButton>
+					<p:commandButton value="Cancel"
+						styleClass="dialog-button-multiple button-with-border"
+						type="button" onclick="PF('delete-dialog').hide();"></p:commandButton>
+				</h:panelGrid>
+			</p:dialog>
+		</h:form>
+		<p:growl id="database" showDetail="true" autoUpdate="false"
+			sticky="false" severity="info, error" redisplay="false" />
+	</ui:define>
+	<ui:define name="footer">
+	</ui:define>
+</ui:composition>
+</html>

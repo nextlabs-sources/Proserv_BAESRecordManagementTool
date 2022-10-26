@@ -1,0 +1,503 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jstl/functions">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+	<ui:define name="header">
+	</ui:define>
+	<ui:define name="content">
+		<h:outputText value="Manage Record Categories" styleClass="page-title"></h:outputText>
+		<p:separator />
+		<h:form id="record-category-form">
+			<p:toolbar styleClass="data-toolbar" id="record-category-toolbar">
+				<f:facet name="left">
+					<p:commandButton type="button" value="New" icon="ui-icon-document"
+						onclick="PF('create-new-dialog').show();"
+						update=":create-new-form:create-new-dialog"
+						styleClass="button-with-border-top-left" />
+				</f:facet>
+
+				<f:facet name="right">
+					<p:commandButton id="toggle" type="button" value="Columns"
+						style="text-transform: none !important; margin-left:10px; margin-bottom:2;"
+						icon="ui-icon-calculator"
+						styleClass="button-with-border-top-right" />
+					<p:overlayPanel id="display-columns" for="toggle" hideEffect="fade"
+						dynamic="false"
+						style="width:300px;text-transform: none !important; text-align:center">
+						<p:dataTable value="#{manageRecordCategoryBean.displayColumns}"
+							var="column" styleClass="profile-list" itemType="none">
+							<p:column headerText="Column" width="80%"
+								style="text-align:left !important">
+								<h:outputText value="#{column.element0}"></h:outputText>
+							</p:column>
+							<p:column width="20%">
+								<p:selectBooleanCheckbox value="#{column.element1}">
+								</p:selectBooleanCheckbox>
+							</p:column>
+
+						</p:dataTable>
+						<p:commandButton value="Update" styleClass="button-with-border"
+							update=":record-category-form:record-category-table"
+							style="margin:10px;" />
+					</p:overlayPanel>
+				</f:facet>
+			</p:toolbar>
+
+			<!-- <p:messages showDetail="true" autoUpdate="true" closable="true"
+				globalOnly="true" severity="info, warn" /> -->
+
+			<p:dataTable var="categoryItem"
+				rowKey="#{categoryItem.recordCategory}"
+				value="#{manageRecordCategoryBean.recordCategoryLazyList}"
+				paginator="true" paginatorAlwaysVisible="true" rows="30" lazy="true"
+				paginatorPosition="bottom" resizableColumns="true"
+				id="record-category-table" style="margin-top:0px !important"
+				sortBy="#{categoryItem.recordCategory}"
+				rowsPerPageTemplate="10, 30, 50, 100, 500, 1000">
+				<f:facet name="header">
+            		Record Categories
+				</f:facet>
+				<p:columnGroup type="header">
+					<p:row>
+						<p:column headerText="Active" width="50"
+							style="text-align:center !important;"
+							sortBy="#{categoryItem.active}"
+							rendered="#{manageRecordCategoryBean.renderColumn('Active')}" />
+						<p:column headerText="Category" width="8%"
+							rendered="#{manageRecordCategoryBean.renderColumn('Category')}"
+							filterBy="#{categoryItem.recordCategory}"
+							sortBy="#{categoryItem.recordCategory}" />
+						<p:column headerText="Description" width="11%"
+							rendered="#{manageRecordCategoryBean.renderColumn('Description')}"
+							filterBy="#{categoryItem.categoryName}"
+							sortBy="#{categoryItem.categoryName}" />
+						<p:column headerText="Type" width="10%"
+							rendered="#{manageRecordCategoryBean.renderColumn('Type')}"
+							filterBy="#{categoryItem.recordType}"
+							sortBy="#{categoryItem.recordType}" />
+						<p:column headerText="Activity" width="17%"
+							rendered="#{manageRecordCategoryBean.renderColumn('Activity')}"
+							sortBy="#{categoryItem.recordActivity}"
+							filterBy="#{categoryItem.recordActivity}" />
+						<p:column headerText="Functional Mailbox" width="22%"
+							rendered="#{manageRecordCategoryBean.renderColumn('Functional Mailbox')}"
+							sortBy="#{categoryItem.functionalMailbox}"
+							filterBy="#{categoryItem.functionalMailbox}" />
+						<p:column headerText="Retention Period"
+							rendered="#{manageRecordCategoryBean.renderColumn('Retention Period')}"
+							sortBy="#{categoryItem.retentionPeriod}" width="12%" />
+						<p:column headerText="Auto Delete" width="5%"
+							rendered="#{manageRecordCategoryBean.renderColumn('Auto Delete')}"
+							sortBy="#{categoryItem.autoDelete}"
+							filterBy="#{categoryItem.autoDelete}" />
+						<p:column width="50" style="text-align:center !important"
+							headerText="Details" />
+						<p:column width="50" style="text-align:center !important"
+							headerText="Delete" />
+					</p:row>
+				</p:columnGroup>
+
+
+				<p:ajax listener="#{manageRecordCategoryBean.onRowSelect}"
+					event="rowSelectCheckbox"
+					update=":record-category-form:record-category-toolbar" />
+				<p:ajax listener="#{manageRecordCategoryBean.onRowUnselect}"
+					event="rowUnselectCheckbox"
+					update=":record-category-form:record-category-toolbar" />
+				<p:ajax event="toggleSelect"
+					update=":record-category-form:record-category-toolbar"
+					listener="#{manageRecordCategoryBean.onToggleSelect}" />
+				<p:ajax event="filter"
+					update=":record-category-form:record-category-toolbar"
+					listener="#{manageRecordCategoryBean.onFilter}" />
+
+				<!-- <p:column selectionMode="multiple" style="text-align:center"
+					width="4%" /> -->
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Active')}">
+					<h:outputText value="A" rendered="#{categoryItem.active == 1}"
+						style="color:green" />
+					<h:outputText value="I" rendered="#{categoryItem.active == 0}" />
+				</p:column>
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Category')}">
+					<h:outputText value="#{categoryItem.recordCategory}" />
+				</p:column>
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Description')}">
+					<h:outputText value="#{categoryItem.categoryName}" />
+				</p:column>
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Type')}">
+					<h:outputText value="#{categoryItem.recordType}" />
+				</p:column>
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Activity')}">
+					<p:commandLink
+						action="#{manageActivityBean.getActivityDetails(categoryItem.recordActivity)}">
+						<h:outputText
+							value="#{manageRecordCategoryBean.getActivityName(categoryItem.recordActivity)}" />
+						<f:setPropertyActionListener
+							value="#{categoryItem.recordActivity}"
+							target="#{userSessionBean.lastViewedActivity}"></f:setPropertyActionListener>
+					</p:commandLink>
+				</p:column>
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Functional Mailbox')}">
+					<h:outputText value="#{categoryItem.functionalMailbox}" />
+				</p:column>
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Retention Period')}">
+					<h:outputText
+						value="#{manageRecordCategoryBean.getDisplayRetention(categoryItem.retentionPeriod)}" />
+				</p:column>
+
+				<p:column
+					rendered="#{manageRecordCategoryBean.renderColumn('Auto Delete')}">
+					<h:outputText value="Y" rendered="#{categoryItem.autoDelete == 1}" />
+					<h:outputText value="N" rendered="#{categoryItem.autoDelete == 0}" />
+				</p:column>
+				<p:column>
+					<p:commandButton icon="ui-icon-search"
+						styleClass="button-with-border button-in-grid"
+						action="#{manageRecordCategoryBean.getEditRecordCategory}"
+						update=":edit-form:edit-record-category :record-category-form:record-category-table">
+						<f:setPropertyActionListener
+							value="#{categoryItem.recordCategory}"
+							target="#{manageRecordCategoryBean.selectedRecordCategoryValue}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column>
+					<p:commandButton icon="ui-icon-trash"
+						disabled="#{!userSessionBean.isAdmin}"
+						styleClass="button-with-border button-in-grid"
+						action="#{manageRecordCategoryBean.getDeleteRecordCategory}"
+						update=":delete-record-category-form:delete-dialog :record-category-form:record-category-table">
+						<f:setPropertyActionListener
+							value="#{categoryItem.recordCategory}"
+							target="#{manageRecordCategoryBean.selectedRecordCategoryValue}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+
+
+		</h:form>
+
+		<h:form id="create-new-form">
+			<p:dialog header="Register New Record Category" dynamic="true"
+				widgetVar="create-new-dialog" modal="true" closeOnEscape="true"
+				width="auto" id="create-new-dialog" resizable="false">
+				<h:panelGrid columns="4" cellspacing="7" styleClass="dialog-grid"
+					id="create-new-dialog-grid">
+					<p:outputLabel for="new-category-value" value="Category" />
+					<p:inputText
+						value="#{manageRecordCategoryBean.newRecordCategory.recordCategory}"
+						required="true" id="new-category-value"></p:inputText>
+					<p:message for="new-category-value" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="new-category-name" value="Description" />
+					<p:inputText maxlength="100" required="true"
+						value="#{manageRecordCategoryBean.newRecordCategory.categoryName}"
+						id="new-category-name"></p:inputText>
+					<p:message for="new-category-name" display="tooltip" />
+					<p:watermark value="Max 100 characters" for="new-category-name"></p:watermark>
+
+					<p:outputLabel for="new-category-type" value="Type" />
+					<p:selectOneMenu tabindex="0" required="true"
+						value="#{manageRecordCategoryBean.newRecordCategory.recordType}"
+						id="new-category-type">
+						<f:selectItem itemLabel="Standard" itemValue="Standard"></f:selectItem>
+						<f:selectItem itemLabel="Complex" itemValue="Complex"></f:selectItem>
+						<p:ajax event="change"
+							listener="#{manageRecordCategoryBean.selectNewCategoryType}"
+							update="new-activity-grid new-category-activity-label"></p:ajax>
+					</p:selectOneMenu>
+					<p:message for="new-category-type" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="new-category-activity" value="Activity"
+						id="new-category-activity-label" />
+					<h:panelGrid id="new-activity-grid" columns="1" cellpadding="0"
+						cellspacing="0">
+						<p:autoComplete
+							required="#{manageRecordCategoryBean.newRecordCategory.recordType =='Complex'}"
+							disabled="#{manageRecordCategoryBean.newRecordCategory.recordType !='Complex'}"
+							value="#{manageRecordCategoryBean.newRecordCategoryActivity}"
+							forceSelection="true" id="new-category-activity"
+							completeMethod="#{manageRecordCategoryBean.suggestActivity}">
+						</p:autoComplete>
+					</h:panelGrid>
+					<p:message for="new-category-activity" display="tooltip"
+						id="new-category-activity-msg" />
+					<h:outputText />
+
+					<p:outputLabel for="new-category-department"
+						value="Department of Record" />
+					<h:panelGrid id="new-department-grid" columns="1" cellpadding="0"
+						cellspacing="0">
+						<p:selectOneMenu id="new-category-department" required="true"
+							value="#{manageRecordCategoryBean.newRecordCategory.departmentOfRecord}">
+							<f:selectItem itemLabel="" />
+							<f:selectItems value="#{manageRecordCategoryBean.departments}"
+								var="department" itemLabel="#{department.name}"
+								itemValue="#{department.name}"></f:selectItems>
+						</p:selectOneMenu>
+					</h:panelGrid>
+					<p:message for="new-category-department" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel value="Retention Period*" />
+					<h:panelGrid id="new-period-grid" columns="3" cellpadding="0"
+						cellspacing="5">
+						<h:outputText value="Permanent" style="font-size:1.05em;"></h:outputText>
+						<p:selectBooleanCheckbox
+							value="#{manageRecordCategoryBean.newRetentionPermanent}">
+							<p:ajax event="change" update="new-activity-grid new-period-grid"></p:ajax>
+						</p:selectBooleanCheckbox>
+						<h:outputText />
+						<p:selectOneMenu required="true" style="width:80px !important"
+							disabled="#{manageRecordCategoryBean.newRetentionPermanent}"
+							value="#{manageRecordCategoryBean.newRetentionYear}">
+							<f:selectItems value="#{manageRecordCategoryBean.yearList}"
+								var="period" itemLabel="#{period.element1}"
+								itemValue="#{period.element0}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<p:selectOneMenu required="true" style="width:90px !important"
+							disabled="#{manageRecordCategoryBean.newRetentionPermanent}"
+							value="#{manageRecordCategoryBean.newRetentionMonth}">
+							<f:selectItems value="#{manageRecordCategoryBean.monthList}"
+								var="period" itemLabel="#{period.element1}"
+								itemValue="#{period.element0}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<p:selectOneMenu required="true" style="width:70px !important"
+							disabled="#{manageRecordCategoryBean.newRetentionPermanent}"
+							value="#{manageRecordCategoryBean.newRetentionDay}">
+							<f:selectItems value="#{manageRecordCategoryBean.dayList}"
+								var="period" itemLabel="#{period.element1}"
+								itemValue="#{period.element0}"></f:selectItems>
+						</p:selectOneMenu>
+					</h:panelGrid>
+					<h:outputText />
+					<h:outputText />
+
+					<p:outputLabel for="new-category-autodelete" value="Auto Delete" />
+					<p:selectOneMenu required="true"
+						value="#{manageRecordCategoryBean.newRecordCategory.autoDelete}"
+						id="new-category-autodelete">
+						<f:selectItem itemLabel="Yes" itemValue="1"></f:selectItem>
+						<f:selectItem itemLabel="No" itemValue="0"></f:selectItem>
+					</p:selectOneMenu>
+					<p:message for="new-category-autodelete" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="new-category-active" value="Active"></p:outputLabel>
+					<p:selectBooleanCheckbox required="true"
+						value="#{manageRecordCategoryBean.newRecordCategoryActive}"
+						id="new-category-active"></p:selectBooleanCheckbox>
+					<p:message for="new-category-active" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="new-category-comment" value="Comments"></p:outputLabel>
+					<p:inputTextarea id="new-category-comment" maxlength="1000"
+						autoResize="false"
+						value="#{manageRecordCategoryBean.newRecordCategory.comments}"></p:inputTextarea>
+					<p:message for="new-category-comment" display="tooltip" />
+					<p:watermark value="Max 1000 characters" for="new-category-comment"></p:watermark>
+				</h:panelGrid>
+
+				<p:commandButton value="Create"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageRecordCategoryBean.createNewRecordCategory}"
+					id="new-category-button" onclick="loading();"
+					oncomplete="doneLoading();"
+					update=":record-category-form:record-category-table create-new-dialog-grid create-new-msg :record-category-form:record-category-toolbar"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					severity="error" for="create-new-form" id="create-new-msg" />
+			</p:dialog>
+		</h:form>
+
+		<h:form id="edit-form">
+			<p:dialog header="Update Record Category Details"
+				widgetVar="edit-record-category" modal="true" closeOnEscape="true"
+				width="auto" id="edit-record-category" resizable="false"
+				dynamic="true">
+				<h:panelGrid columns="4" cellspacing="7" styleClass="dialog-grid"
+					id="edit-record-category-dialog-grid">
+					<p:outputLabel value="Category" />
+					<p:outputLabel
+						value="#{manageRecordCategoryBean.selectedRecordCategory.recordCategory}" />
+					<h:outputText />
+					<h:outputText />
+
+					<p:outputLabel for="edit-category-name" value="Description" />
+					<p:inputText required="true"
+						value="#{manageRecordCategoryBean.selectedRecordCategory.categoryName}"
+						id="edit-category-name"></p:inputText>
+					<p:message for="edit-category-name" display="tooltip" />
+					<p:watermark value="Max 100 characters" for="edit-category-name"></p:watermark>
+
+					<p:outputLabel for="edit-category-type" value="Type" />
+					<p:selectOneMenu required="true"
+						value="#{manageRecordCategoryBean.selectedRecordCategory.recordType}"
+						id="edit-category-type">
+						<f:selectItem itemLabel="Standard" itemValue="Standard"></f:selectItem>
+						<f:selectItem itemLabel="Complex" itemValue="Complex"></f:selectItem>
+						<p:ajax event="change"
+							listener="#{manageRecordCategoryBean.selectEditCategoryType}"
+							update="edit-activity-grid edit-category-activity-label"></p:ajax>
+					</p:selectOneMenu>
+					<p:message for="edit-category-type" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="edit-category-activity" value="Activity"
+						id="edit-category-activity-label" />
+					<h:panelGrid id="edit-activity-grid" columns="1" cellpadding="0"
+						cellspacing="0">
+						<p:autoComplete multiple="false"
+							required="#{manageRecordCategoryBean.selectedRecordCategory.recordType =='Complex'}"
+							disabled="#{manageRecordCategoryBean.selectedRecordCategory.recordType !='Complex'}"
+							value="#{manageRecordCategoryBean.selectedRecordCategoryActivity}"
+							forceSelection="true" id="edit-category-activity"
+							completeMethod="#{manageRecordCategoryBean.suggestActivity}">
+						</p:autoComplete>
+					</h:panelGrid>
+					<p:message for="edit-category-activity" display="tooltip"
+						id="edit-category-activity-msg" />
+					<h:outputText />
+
+					<p:outputLabel for="edit-category-department"
+						value="Department of Record" />
+					<h:panelGrid id="edit-department-grid" columns="1" cellpadding="0"
+						cellspacing="0">
+						<p:selectOneMenu id="edit-category-department" required="true"
+							value="#{manageRecordCategoryBean.selectedRecordCategory.departmentOfRecord}">
+							<f:selectItem itemLabel="" />
+							<f:selectItems value="#{manageRecordCategoryBean.departments}"
+								var="department" itemLabel="#{department.name}"
+								itemValue="#{department.name}"></f:selectItems>
+						</p:selectOneMenu>
+					</h:panelGrid>
+					<p:message for="edit-category-department" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel value="Retention Period*" />
+					<h:panelGrid columns="3" id="edit-retention-grid">
+						<h:outputText value="Permanent" style="font-size:1.05em" />
+						<p:selectBooleanCheckbox required="true"
+							value="#{manageRecordCategoryBean.editRetentionPermanent}">
+							<p:ajax event="change"
+								update="edit-activity-grid edit-retention-grid"></p:ajax>
+						</p:selectBooleanCheckbox>
+						<h:outputText />
+						<p:selectOneMenu required="true" style="width:80px !important"
+							disabled="#{manageRecordCategoryBean.editRetentionPermanent}"
+							value="#{manageRecordCategoryBean.editRetentionYear}">
+							<f:selectItems value="#{manageRecordCategoryBean.yearList}"
+								var="period" itemLabel="#{period.element1}"
+								itemValue="#{period.element0}"></f:selectItems>
+						</p:selectOneMenu>
+						<p:selectOneMenu required="true" style="width:90px !important"
+							disabled="#{manageRecordCategoryBean.editRetentionPermanent}"
+							value="#{manageRecordCategoryBean.editRetentionMonth}">
+							<f:selectItems value="#{manageRecordCategoryBean.monthList}"
+								var="period" itemLabel="#{period.element1}"
+								itemValue="#{period.element0}"></f:selectItems>
+						</p:selectOneMenu>
+						<p:selectOneMenu required="true" style="width:70px !important"
+							disabled="#{manageRecordCategoryBean.editRetentionPermanent}"
+							value="#{manageRecordCategoryBean.editRetentionDay}">
+							<f:selectItems value="#{manageRecordCategoryBean.dayList}"
+								var="period" itemLabel="#{period.element1}"
+								itemValue="#{period.element0}"></f:selectItems>
+						</p:selectOneMenu>
+					</h:panelGrid>
+					<h:outputText />
+					<h:outputText />
+
+
+					<p:outputLabel for="edit-category-autodelete" value="Auto Delete" />
+					<p:selectOneMenu required="true"
+						value="#{manageRecordCategoryBean.selectedRecordCategory.autoDelete}"
+						id="edit-category-autodelete">
+						<f:selectItem itemLabel="Yes" itemValue="1"></f:selectItem>
+						<f:selectItem itemLabel="No" itemValue="0"></f:selectItem>
+					</p:selectOneMenu>
+					<p:message for="edit-category-autodelete" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="edit-category-active" value="Active"></p:outputLabel>
+					<p:selectBooleanCheckbox required="true"
+						value="#{manageRecordCategoryBean.selectedRecordCategoryActive}"
+						id="edit-category-active"></p:selectBooleanCheckbox>
+					<p:message for="edit-category-active" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="edit-category-comment" value="Comments"></p:outputLabel>
+					<p:inputTextarea id="edit-category-comment" maxlength="1000"
+						autoResize="false"
+						value="#{manageRecordCategoryBean.selectedRecordCategory.comments}"></p:inputTextarea>
+					<p:message for="edit-category-comment" display="tooltip" />
+					<p:watermark value="Max 1000 characters"
+						for="edit-category-comment" />
+				</h:panelGrid>
+				<p:commandButton value="Update"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageRecordCategoryBean.updateRecordCategory}"
+					id="record-category-update-button" onclick="loading();"
+					oncomplete="doneLoading();"
+					update=":record-category-form:record-category-table edit-record-category-dialog-grid"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					for="edit-form" severity="error" id="edit-msg" />
+			</p:dialog>
+		</h:form>
+
+		<h:form id="delete-record-category-form">
+			<p:dialog
+				header="Delete Record Category- #{manageRecordCategoryBean.selectedRecordCategory.recordCategory}"
+				widgetVar="delete-dialog" modal="true" closeOnEscape="true"
+				width="auto" id="delete-dialog" resizable="false">
+				<h:panelGrid columns="1" width="100%">
+					<h:outputText
+						value="This will permanently delete this record category. Are you sure?"
+						styleClass="title" />
+				</h:panelGrid>
+				<h:panelGrid columns="3" width="100%" style="margin-top:30px"
+					styleClass="dialog-button-grid">
+					<p:commandButton value="Delete"
+						styleClass="dialog-button-multiple button-with-border"
+						action="#{manageRecordCategoryBean.deleteRecordCategory}"
+						id="record-category-delete-button"
+						oncomplete="PF('delete-dialog').hide();"
+						update=":record-category-form:record-category-table :record-category-form:record-category-toolbar"></p:commandButton>
+					<p:commandButton value="Cancel"
+						styleClass="dialog-button-multiple button-with-border"
+						type="button" onclick="PF('delete-dialog').hide();"></p:commandButton>
+				</h:panelGrid>
+			</p:dialog>
+		</h:form>
+
+		<p:growl id="database" showDetail="true" autoUpdate="false"
+			sticky="false" severity="info, error" redisplay="false" />
+	</ui:define>
+	<ui:define name="footer">
+	</ui:define>
+</ui:composition>
+</html>

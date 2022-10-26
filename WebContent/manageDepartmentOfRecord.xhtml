@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jstl/functions">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+	<ui:define name="header">
+	</ui:define>
+	<ui:define name="content">
+		<h:outputText value="Manage Departments of Record"
+			styleClass="page-title"></h:outputText>
+		<p:separator />
+		<h:form id="department-form">
+			<p:toolbar styleClass="data-toolbar" id="department-toolbar">
+				<f:facet name="left">
+					<p:commandButton type="button" value="New" icon="ui-icon-document"
+						onclick="PF('create-new-dialog').show();"
+						update=":create-new-form:create-new-dialog"
+						styleClass="button-with-border-top-left" />
+				</f:facet>
+			</p:toolbar>
+
+			<!-- <p:messages showDetail="true" autoUpdate="true" closable="true"
+				globalOnly="true" severity="info, warn" /> -->
+
+			<p:dataTable var="department"
+				value="#{manageDepartmentOfRecordBean.departmentOfRecordLazyList}"
+				paginator="true" paginatorAlwaysVisible="true" rows="30" lazy="true"
+				paginatorPosition="bottom" resizableColumns="true"
+				rowKey="#{department.name}" id="department-table"
+				style="margin-top:0px !important" sortBy="#{department.name}"
+				rowsPerPageTemplate="10, 30, 50, 100, 500, 1000">
+				<f:facet name="header">
+            		Departments of Record
+        		</f:facet>
+				<p:ajax listener="#{manageDepartmentOfRecordBean.onRowSelect}"
+					event="rowSelectCheckbox"
+					update=":department-form:department-toolbar" />
+				<p:ajax listener="#{manageDepartmentOfRecordBean.onRowUnselect}"
+					event="rowUnselectCheckbox"
+					update=":department-form:department-toolbar" />
+				<p:ajax event="toggleSelect"
+					update=":department-form:department-toolbar"
+					listener="#{manageDepartmentOfRecordBean.onToggleSelect}" />
+				<p:ajax listener="#{manageDepartmentOfRecordBean.onFilter}"
+					update=":department-form:department-table" event="filter" />
+
+				<!-- <p:column selectionMode="multiple" style="text-align:center"
+					width="4%" /> -->
+
+				<p:column headerText="Name" width="40%"
+					filterBy="#{department.name}" sortBy="#{department.name}">
+					<h:outputText value="#{department.name}" />
+				</p:column>
+
+				<p:column headerText="Functional Mailbox" width="40%"
+					filterBy="#{department.functionalMailbox}"
+					sortBy="#{department.functionalMailbox}">
+					<h:outputText value="#{department.functionalMailbox}" />
+				</p:column>
+
+
+
+				<p:column width="50" style="text-align:center !important"
+					headerText="Details">
+					<p:commandButton icon="ui-icon-search"
+						styleClass="button-with-border button-in-grid"
+						action="#{manageDepartmentOfRecordBean.getDepartmentOfRecordDetails}"
+						update=":edit-form:edit-dialog :department-form:department-table">
+						<f:setPropertyActionListener value="#{department.name}"
+							target="#{manageDepartmentOfRecordBean.selectedDepartmentOfRecordValue}" />
+					</p:commandButton>
+				</p:column>
+
+
+				<p:column width="50" style="text-align:center !important"
+					headerText="Delete">
+					<p:commandButton icon="ui-icon-trash"
+						disabled="#{!userSessionBean.isAdmin}"
+						styleClass="button-with-border button-in-grid"
+						action="#{manageDepartmentOfRecordBean.getDepartmentOfRecordDetailsForDelete}"
+						update=":delete-department-form:delete-dialog :department-form:department-table">
+						<f:setPropertyActionListener value="#{department.name}"
+							target="#{manageDepartmentOfRecordBean.selectedDepartmentOfRecordValue}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+		</h:form>
+
+		<h:form id="create-new-form">
+			<p:dialog header="Register New Department of Record"
+				widgetVar="create-new-dialog" modal="true" closeOnEscape="true"
+				width="auto" id="create-new-dialog" resizable="false">
+				<h:panelGrid columns="4" cellspacing="7" styleClass="dialog-grid"
+					id="create-new-dialog-grid">
+					<p:outputLabel for="department-new-value" value="Name" />
+					<p:inputText
+						value="#{manageDepartmentOfRecordBean.newDepartmentOfRecord.name}"
+						required="true" id="department-new-value"></p:inputText>
+					<p:message for="department-new-value" display="tooltip" />
+					<p:watermark value="Max 50 characters" for="department-new-value" />
+
+					<p:outputLabel for="department-new-mailbox"
+						value="Functional Mailbox" />
+
+					<p:inputText id="department-new-mailbox"
+						value="#{manageDepartmentOfRecordBean.newDepartmentOfRecord.functionalMailbox}"></p:inputText>
+
+					<p:message for="department-new-mailbox" display="tooltip" />
+
+				</h:panelGrid>
+				<p:commandButton value="Create"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageDepartmentOfRecordBean.createNewDepartmentOfRecord}"
+					id="department-new-button" onclick="loading();"
+					oncomplete="doneLoading();"
+					update=":department-form:department-table create-new-dialog-grid create-new-msg :department-form:department-toolbar"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					severity="error" for="create-new-form" id="create-new-msg" />
+			</p:dialog>
+		</h:form>
+
+		<h:form id="edit-form">
+			<p:dialog
+				header="Update Department of Record - #{manageDepartmentOfRecordBean.selectedDepartmentOfRecordValue}"
+				widgetVar="edit-dialog" modal="true" closeOnEscape="true"
+				width="auto" id="edit-dialog" resizable="false">
+				<h:panelGrid columns="4" cellspacing="7"
+					styleClass="edit-dialog-grid" id="edit-dialog-grid">
+					<p:outputLabel for="department-new-value" value="Name" />
+					<h:outputText
+						value="#{manageDepartmentOfRecordBean.selectedDepartmentOfRecord.name}"
+						id="department-new-value"></h:outputText>
+					<h:outputText></h:outputText>
+					<h:outputText></h:outputText>
+
+					<p:outputLabel for="department-new-mailbox"
+						value="Functional Mailbox" />
+
+					<p:inputText id="department-new-mailbox"
+						value="#{manageDepartmentOfRecordBean.selectedDepartmentOfRecord.functionalMailbox}"></p:inputText>
+
+					<p:message for="department-new-mailbox" display="tooltip" />
+
+				</h:panelGrid>
+				<p:commandButton value="Update"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageDepartmentOfRecordBean.updateDepartmentOfRecord}"
+					id="department-new-button"
+					update=":department-form:department-table :department-form:department-toolbar :edit-form:edit-dialog-grid"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					severity="error" for="edit-form" id="edit-msg" />
+			</p:dialog>
+		</h:form>
+
+		<h:form id="delete-department-form">
+			<p:dialog
+				header="Delete Department of Record - #{manageDepartmentOfRecordBean.selectedDepartmentOfRecordValue}"
+				widgetVar="delete-dialog" modal="true" closeOnEscape="true"
+				width="auto" id="delete-dialog" resizable="false">
+				<h:outputText
+					value="This will permanently delete this department. Are you sure?" />
+				<h:panelGrid columns="2" width="100%" style="margin-top:30px">
+					<p:commandButton value="Delete"
+						styleClass="dialog-button-multiple button-with-border"
+						action="#{manageDepartmentOfRecordBean.deleteDepartmentOfRecord}"
+						id="department-delete-button" onclick="loading();"
+						oncomplete="doneLoading();"
+						update=":department-form:department-table :department-form:department-toolbar"></p:commandButton>
+					<p:commandButton value="Cancel"
+						styleClass="dialog-button-multiple button-with-border"
+						type="button" onclick="PF('delete-dialog').hide();"></p:commandButton>
+				</h:panelGrid>
+			</p:dialog>
+		</h:form>
+		<p:growl id="database" showDetail="true" autoUpdate="false"
+			sticky="false" severity="info, error" redisplay="false" />
+	</ui:define>
+	<ui:define name="footer">
+	</ui:define>
+</ui:composition>
+</html>

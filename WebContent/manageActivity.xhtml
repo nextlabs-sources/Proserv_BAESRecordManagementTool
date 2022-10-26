@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jstl/functions">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+	<ui:define name="header">
+	</ui:define>
+	<ui:define name="content">
+		<h:outputText value="Manage Activities" styleClass="page-title"></h:outputText>
+		<p:separator />
+		<h:form id="activity-form">
+			<p:toolbar styleClass="data-toolbar" id="activity-toolbar">
+				<f:facet name="left">
+					<p:commandButton type="button" value="New" icon="ui-icon-document"
+						onclick="PF('create-new-dialog').show();"
+						update=":create-new-form:create-new-dialog"
+						styleClass="button-with-border-top-left" />
+				</f:facet>
+			</p:toolbar>
+
+			<!-- <p:messages showDetail="true" autoUpdate="true" closable="true"
+				globalOnly="true" severity="info, warn" /> -->
+
+			<p:dataTable var="activity"
+				value="#{manageActivityBean.activityLazyList}" paginator="true"
+				paginatorAlwaysVisible="true" rows="30" lazy="true"
+				paginatorPosition="bottom" resizableColumns="true"
+				rowKey="#{activity.name}" id="activity-table"
+				style="margin-top:0px !important" sortBy="#{activity.name}"
+				rowsPerPageTemplate="10, 30, 50, 100, 500, 1000">
+				<f:facet name="header">
+            		Activities
+        		</f:facet>
+				<p:ajax listener="#{manageActivityBean.onRowSelect}"
+					event="rowSelectCheckbox" update=":activity-form:activity-toolbar" />
+				<p:ajax listener="#{manageActivityBean.onRowUnselect}"
+					event="rowUnselectCheckbox"
+					update=":activity-form:activity-toolbar" />
+				<p:ajax event="toggleSelect"
+					update=":activity-form:activity-toolbar"
+					listener="#{manageActivityBean.onToggleSelect}" />
+				<p:ajax listener="#{manageActivityBean.onFilter}"
+					update=":activity-form:activity-table" event="filter" />
+
+				<!-- <p:column selectionMode="multiple" style="text-align:center"
+					width="4%" /> -->
+
+				<p:column headerText="Active" width="50"
+					style="text-align:center !important;" sortBy="#{activity.active}">
+					<h:outputText value="A" rendered="#{activity.active == 1}"
+						style="color:green" />
+					<h:outputText value="I" rendered="#{activity.active == 0}" />
+				</p:column>
+
+				<p:column headerText="Name" width="15%" filterBy="#{activity.name}"
+					sortBy="#{activity.name}">
+					<h:outputText value="#{activity.name}" />
+				</p:column>
+
+				<p:column headerText="Record Officers Guidance" width="65%">
+					<h:outputText
+						value="#{manageActivityBean.getInstructionShortText(activity.recordOfficersGuidance)}"
+						escape="false" id="activity-instruction" />
+					<p:tooltip value="#{activity.recordOfficersGuidance}"
+						style="width:500px" for="activity-instruction" escape="false"
+						trackMouse="true">
+					</p:tooltip>
+				</p:column>
+
+
+
+				<p:column width="50" style="text-align:center !important"
+					headerText="Details">
+					<p:commandButton icon="ui-icon-search"
+						styleClass="button-with-border button-in-grid"
+						action="#{manageActivityBean.getActivityDetails(activity.id)}"
+						update=":activity-form:activity-table">
+						<f:setPropertyActionListener value="#{activity.id}"
+							target="#{userSessionBean.lastViewedActivity}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+
+
+				<p:column width="50" style="text-align:center !important"
+					headerText="Delete">
+					<p:commandButton icon="ui-icon-trash"
+						disabled="#{!userSessionBean.isAdmin}"
+						styleClass="button-with-border button-in-grid"
+						action="#{manageActivityBean.getDeleteActivity}"
+						update=":delete-activity-form:delete-dialog :activity-form:activity-table">
+						<f:setPropertyActionListener value="#{activity.name}"
+							target="#{manageActivityBean.selectedActivityValue}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+		</h:form>
+
+		<h:form id="create-new-form">
+			<p:dialog header="Register New Activity"
+				widgetVar="create-new-dialog" modal="true" closeOnEscape="true"
+				width="auto" id="create-new-dialog" resizable="false">
+				<h:panelGrid columns="4" cellspacing="7" styleClass="dialog-grid"
+					id="create-new-dialog-grid">
+					<p:outputLabel for="activity-new-value" value="Name" />
+					<p:inputText value="#{manageActivityBean.newActivity.name}"
+						required="true" id="activity-new-value" maxlength="100"></p:inputText>
+					<p:message for="activity-new-value" display="tooltip" />
+					<p:watermark value="Max 100 characters" for="activity-new-value"></p:watermark>
+
+
+
+					<p:outputLabel for="activity-new-active" value="Active"></p:outputLabel>
+					<p:selectBooleanCheckbox
+						value="#{manageActivityBean.activityNewActive}"
+						id="activity-new-active"></p:selectBooleanCheckbox>
+					<p:message for="activity-new-active" display="tooltip" />
+					<h:outputText />
+
+					<p:outputLabel for="activity-new-specialinstruction"
+						value="Record Officers Guidance" />
+					<p:editor width="500" maxlength="1500"
+						value="#{manageActivityBean.newActivity.recordOfficersGuidance}"
+						required="false" id="activity-new-specialinstruction"></p:editor>
+					<p:message for="activity-new-specialinstruction" display="tooltip" />
+
+				</h:panelGrid>
+				<p:commandButton value="Create"
+					styleClass="dialog-button-single button-with-border"
+					action="#{manageActivityBean.createNewActivity}"
+					id="activity-new-button" onclick="loading();"
+					oncomplete="doneLoading();"
+					update=":activity-form:activity-table create-new-dialog-grid create-new-msg :activity-form:activity-toolbar"></p:commandButton>
+				<p:messages showDetail="true" autoUpdate="true" closable="true"
+					severity="error" for="create-new-form" id="create-new-msg" />
+			</p:dialog>
+		</h:form>
+
+		<h:form id="delete-activity-form">
+			<p:dialog
+				header="Delete Activity - #{manageActivityBean.selectedActivityValue}"
+				widgetVar="delete-dialog" modal="true" closeOnEscape="true"
+				width="auto" id="delete-dialog" resizable="false">
+				<h:outputText
+					value="This will permanently delete this activity. Are you sure?" />
+				<h:panelGrid columns="2" width="100%" style="margin-top:30px">
+					<p:commandButton value="Delete"
+						styleClass="dialog-button-multiple button-with-border"
+						action="#{manageActivityBean.deleteActivity}"
+						id="activity-delete-button" onclick="loading();"
+						oncomplete="doneLoading();"
+						update=":activity-form:activity-table :activity-form:activity-toolbar"></p:commandButton>
+					<p:commandButton value="Cancel"
+						styleClass="dialog-button-multiple button-with-border"
+						type="button" onclick="PF('delete-dialog').hide();"></p:commandButton>
+				</h:panelGrid>
+			</p:dialog>
+		</h:form>
+		<p:growl id="database" showDetail="true" autoUpdate="false"
+			sticky="false" severity="info, error" redisplay="false" />
+	</ui:define>
+	<ui:define name="footer">
+	</ui:define>
+</ui:composition>
+</html>
